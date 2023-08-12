@@ -7,7 +7,7 @@
 
 import Foundation
 
-enum PeerDIDError: LocalizedError {
+public enum PeerDIDError: LocalizedError {
     case somethingWentWrong
     case invalidKeySize
     case couldNotCreateEcnumbasis(derivedError: LocalizedError? = nil)

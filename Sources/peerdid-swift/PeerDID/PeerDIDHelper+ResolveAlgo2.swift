@@ -9,7 +9,7 @@ import Foundation
 
 extension PeerDIDHelper {
     
-    func resolvePeerDIDAlgo2(peerDID: PeerDID, format: VerificationMaterialFormat) throws -> DIDDocument {
+    public func resolvePeerDIDAlgo2(peerDID: PeerDID, format: VerificationMaterialFormat) throws -> DIDDocument {
         let authenticationKeys = peerDID.algo2AuthenticationKeys
         let agreementKeys = peerDID.algo2KeyAgreementKeys
         let service = peerDID.algo2Service

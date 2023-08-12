@@ -9,7 +9,7 @@ import Foundation
 
 extension PeerDIDHelper {
     
-    func resolvePeerDIDAlgo0(peerDID: PeerDID, format: VerificationMaterialFormat) throws -> DIDDocument {
+    public func resolvePeerDIDAlgo0(peerDID: PeerDID, format: VerificationMaterialFormat) throws -> DIDDocument {
         let keyStr = String(peerDID.methodId.dropFirst())
         let decoded = try PeerDIDHelper().decodeMultibaseEcnumbasis(ecnumbasis: keyStr, format: format)
         return DIDDocument(

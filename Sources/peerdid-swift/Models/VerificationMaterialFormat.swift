@@ -9,21 +9,21 @@ import BaseX
 import Foundation
 import Multibase
 
-enum VerificationMaterialFormat: String, Codable {
+public enum VerificationMaterialFormat: String, Codable {
     case jwk
     case base58
     case multibase
 }
 
-enum VerificationMaterialType: RawRepresentable, Codable {
+public enum VerificationMaterialType: RawRepresentable, Codable {
     
-    enum AgreementType: String, Codable {
+    public enum AgreementType: String, Codable {
         case jsonWebKey2020
         case x25519KeyAgreementKey2019
         case x25519KeyAgreementKey2020
     }
     
-    enum AuthenticationType: String, Codable {
+    public enum AuthenticationType: String, Codable {
         case jsonWebKey2020
         case ed25519VerificationKey2018
         case ed25519VerificationKey2020
@@ -32,7 +32,7 @@ enum VerificationMaterialType: RawRepresentable, Codable {
     case agreement(AgreementType)
     case authentication(AuthenticationType)
     
-    init?(rawValue: String) {
+    public init?(rawValue: String) {
         if let agreementType = AgreementType(rawValue: rawValue) {
             self = .agreement(agreementType)
         } else if let autheticationType = AuthenticationType(rawValue: rawValue) {
@@ -41,7 +41,7 @@ enum VerificationMaterialType: RawRepresentable, Codable {
         return nil
     }
     
-    var rawValue: String {
+    public var rawValue: String {
         switch self {
         case .agreement(let type):
             return type.rawValue
@@ -69,17 +69,17 @@ enum VerificationMaterialType: RawRepresentable, Codable {
     }
 }
 
-struct VerificationMaterial {
-    let format: VerificationMaterialFormat
-    let value: Data
-    let type: VerificationMaterialType
+public struct VerificationMaterial {
+    public let format: VerificationMaterialFormat
+    public let value: Data
+    public let type: VerificationMaterialType
 }
 
 extension VerificationMaterial: Codable {}
 
 extension VerificationMaterial {
     
-    init(format: VerificationMaterialFormat, key: Data, type: VerificationMaterialType) throws {
+    public init(format: VerificationMaterialFormat, key: Data, type: VerificationMaterialType) throws {
         self.format = format
         self.type = type
         switch format {
@@ -101,7 +101,7 @@ extension VerificationMaterial {
         }
     }
     
-    func decodedKey() throws -> Data {
+    public func decodedKey() throws -> Data {
         switch format {
         case .jwk:
             let decoder = JSONDecoder()

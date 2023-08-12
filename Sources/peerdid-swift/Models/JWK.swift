@@ -8,10 +8,10 @@
 import Base64
 import Foundation
 
-struct JWK {
-    let kty = "OKP"
-    let crv: String
-    let x: String
+public struct JWK {
+    public let kty = "OKP"
+    public let crv: String
+    public let x: String
 }
 
 extension JWK: Codable {}

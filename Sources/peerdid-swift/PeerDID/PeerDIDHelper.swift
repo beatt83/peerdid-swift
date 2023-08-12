@@ -9,9 +9,9 @@ import BaseX
 import Foundation
 import Multibase
 
-struct PeerDIDHelper {
+public struct PeerDIDHelper {
     
-    static func createAlgo0(key: VerificationMaterial) throws -> PeerDID {
+    public static func createAlgo0(key: VerificationMaterial) throws -> PeerDID {
         let keyEcnumbasis = try PeerDIDHelper().createMultibaseEncnumbasis(material: key)
         return PeerDID(
             algo: ._0,
@@ -19,7 +19,7 @@ struct PeerDIDHelper {
         )
     }
     
-    static func createAlgo2(
+    public static func createAlgo2(
         authenticationKeys: [VerificationMaterial],
         agreementKeys: [VerificationMaterial],
         service: DIDDocument.Service?
@@ -42,7 +42,7 @@ struct PeerDIDHelper {
         )
     }
     
-    static func resolve(peerDIDStr: String, format: VerificationMaterialFormat = .multibase) throws -> DIDDocument {
+    public static func resolve(peerDIDStr: String, format: VerificationMaterialFormat = .multibase) throws -> DIDDocument {
         guard !peerDIDStr.isEmpty else { throw PeerDIDError.invalidPeerDIDString }
         let peerDID = try PeerDID(didString: peerDIDStr)
         switch peerDID.algo {
@@ -55,7 +55,7 @@ struct PeerDIDHelper {
 }
 
 // MARK: Ecnumbasis
-extension PeerDIDHelper {
+public extension PeerDIDHelper {
     func createMultibaseEncnumbasis(material: VerificationMaterial) throws -> String {
         let encodedCodec = Multicodec().toMulticodec(
             value: try material.decodedKey(),
@@ -164,7 +164,7 @@ extension PeerDIDHelper {
         }
     }
     
-    func encodePeerDIDService(service: DIDDocument.Service) throws -> String {
+    public func encodePeerDIDService(service: DIDDocument.Service) throws -> String {
         let encoder = JSONEncoder()
         if #available(macOS 10.15, *) {
             encoder.outputFormatting = [.withoutEscapingSlashes, .sortedKeys]
@@ -187,7 +187,7 @@ extension PeerDIDHelper {
         return "S\(encodedService)"
     }
     
-    func decodedPeerDIDService(did: String, serviceString: String) throws -> DIDDocument.Service {
+    public func decodedPeerDIDService(did: String, serviceString: String) throws -> DIDDocument.Service {
         guard
             let serviceBase64Data = Data(base64URLEncoded: String(serviceString.dropFirst())),
             let serviceStr = String(data: serviceBase64Data, encoding: .utf8)
@@ -219,7 +219,7 @@ private extension Data {
 
 extension DIDDocument.VerificationMethod {
     
-    init(did: String, ecnumbasis: String, material: VerificationMaterial) throws {
+    public init(did: String, ecnumbasis: String, material: VerificationMaterial) throws {
         self.id = did + "#\(ecnumbasis)"
         self.controller = did
         self.material = material

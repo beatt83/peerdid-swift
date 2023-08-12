@@ -7,15 +7,15 @@
 
 import Foundation
 
-struct DIDDocument {
+public struct DIDDocument {
     
-    struct VerificationMethod {
+    public struct VerificationMethod {
         let id: String
         let controller: String
         let material: VerificationMaterial
     }
     
-    struct Service {
+    public struct Service {
         let id: String
         let type: String
         let serviceEndpoint: String
@@ -23,15 +23,15 @@ struct DIDDocument {
         let accept: [String]
     }
     
-    let did: String
-    let verificationMethods: [VerificationMethod]
-    let services: [Service]
+    public let did: String
+    public let verificationMethods: [VerificationMethod]
+    public let services: [Service]
     
-    var authentication: [VerificationMethod] {
+    public var authentication: [VerificationMethod] {
         verificationMethods.filter { $0.material.type.isAuthentication }
     }
     
-    var keyAgreement: [VerificationMethod] {
+    public var keyAgreement: [VerificationMethod] {
         verificationMethods.filter { $0.material.type.isAgreement }
     }
 }
@@ -49,7 +49,7 @@ extension DIDDocument.VerificationMethod: Codable {
         case publicKeyJwk
     }
     
-    init(from decoder: Decoder) throws {
+    public init(from decoder: Decoder) throws {
         let container = try decoder.container(keyedBy: CodingKeys.self)
         
         id = try container.decode(String.self, forKey: .id)
@@ -100,7 +100,7 @@ extension DIDDocument.VerificationMethod: Codable {
         }
     }
     
-    func encode(to encoder: Encoder) throws {
+    public func encode(to encoder: Encoder) throws {
         var container = encoder.container(keyedBy: CodingKeys.self)
         
         try container.encode(id, forKey: .id)

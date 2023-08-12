@@ -7,9 +7,9 @@
 
 import Foundation
 
-struct PeerDID {
+public struct PeerDID {
     
-    enum Algorithm: String {
+    public enum Algorithm: String {
         case _0 = "0"
         case _2 = "2"
         
@@ -20,17 +20,17 @@ struct PeerDID {
         }
     }
     
-    let algo: Algorithm
-    let schema: String = "did"
-    let method: String = "peer"
-    let methodId: String
+    public let algo: Algorithm
+    public let schema: String = "did"
+    public let method: String = "peer"
+    public let methodId: String
     
-    init(algo: Algorithm, methodId: String) {
+    public init(algo: Algorithm, methodId: String) {
         self.algo = algo
         self.methodId = methodId
     }
     
-    init(didString: String) throws {
+    public init(didString: String) throws {
         let pattern = #"^did:peer:([0-9a-zA-Z])([0-9a-zA-Z]+)$"#
         let regex = try? NSRegularExpression(pattern: pattern)
         let matches = regex?.matches(
@@ -53,33 +53,33 @@ struct PeerDID {
         self.algo = algo
     }
     
-    var string: String {
+    public var string: String {
         "\(schema):\(method):\(methodId)"
     }
     
-    var methodIdWithoutAlgo: String {
+    public var methodIdWithoutAlgo: String {
         String(methodId.dropFirst())
     }
     
-    var allAttributes: [String] {
+    public var allAttributes: [String] {
         methodIdWithoutAlgo.components(separatedBy: ".")
     }
     
-    var algo2AuthenticationKeys: [String] {
+    public var algo2AuthenticationKeys: [String] {
         guard algo == ._2 else { return [] }
         return allAttributes
             .filter { $0.hasPrefix(Algorithm.Algo2Prefix.authentication.rawValue) }
             .map { String($0.dropFirst()) }
     }
     
-    var algo2KeyAgreementKeys: [String] {
+    public var algo2KeyAgreementKeys: [String] {
         guard algo == ._2 else { return [] }
         return allAttributes
             .filter { $0.hasPrefix(Algorithm.Algo2Prefix.agreement.rawValue) }
             .map { String($0.dropFirst()) }
     }
     
-    var algo2Service: [String] {
+    public var algo2Service: [String] {
         guard algo == ._2 else { return [] }
         return allAttributes
             .filter { $0.hasPrefix(Algorithm.Algo2Prefix.service.rawValue) }
