@@ -10,17 +10,17 @@ import Foundation
 public struct DIDDocument {
     
     public struct VerificationMethod {
-        let id: String
-        let controller: String
-        let material: VerificationMaterial
+        public let id: String
+        public let controller: String
+        public let material: VerificationMaterial
     }
     
     public struct Service {
-        let id: String
-        let type: String
-        let serviceEndpoint: String
-        let routingKeys: [String]?
-        let accept: [String]?
+        public let id: String
+        public let type: String
+        public let serviceEndpoint: String
+        public let routingKeys: [String]?
+        public let accept: [String]?
     }
     
     public let did: String

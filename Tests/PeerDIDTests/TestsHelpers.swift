@@ -5,7 +5,7 @@
 //  Created by Gonçalo Frade on 12/08/2023.
 //
 
-@testable import peerdid_swift
+@testable import PeerDID
 import Foundation
 
 extension JWK {
