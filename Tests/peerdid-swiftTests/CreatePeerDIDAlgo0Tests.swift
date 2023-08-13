@@ -36,7 +36,7 @@ final class CreatePeerDIDAlgo0Tests: XCTestCase {
             x: "owBhCbktDjkfS6PdQddT0D3yjSitaSysP3YimJ_YgmA"
         )
         
-        let encoder = JSONEncoder()
+        let encoder = JSONEncoder.peerDIDEncoder()
         let encodedJWK = try encoder.encode(jwk)
         
         let material = VerificationMaterial(

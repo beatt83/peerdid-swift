@@ -73,7 +73,7 @@ final class DecodeEcnumbasisTest: XCTestCase {
             crv: "Ed25519",
             x: "owBhCbktDjkfS6PdQddT0D3yjSitaSysP3YimJ_YgmA"
         )
-        let encoder = JSONEncoder()
+        let encoder = JSONEncoder.peerDIDEncoder()
         let encodedJWK = try encoder.encode(expectedJWK)
         
         let expected = VerificationMaterial(
@@ -95,7 +95,7 @@ final class DecodeEcnumbasisTest: XCTestCase {
             crv: "X25519",
             x: "BIiFcQEn3dfvB2pjlhOQQour6jXy9d5s2FKEJNTOJik"
         )
-        let encoder = JSONEncoder()
+        let encoder = JSONEncoder.peerDIDEncoder()
         let encodedJWK = try encoder.encode(expectedJWK)
         
         let expected = VerificationMaterial(

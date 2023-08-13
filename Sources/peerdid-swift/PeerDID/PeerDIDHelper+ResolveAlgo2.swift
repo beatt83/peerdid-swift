@@ -15,18 +15,18 @@ extension PeerDIDHelper {
         let service = peerDID.algo2Service
         
         let authenticationVerificationMethods = try authenticationKeys
-            .map { try decodeMultibaseEcnumbasis(ecnumbasis: $0, format: format) }
+            .map { (try decodeMultibaseEcnumbasis(ecnumbasis: $0, format: format), $0) }
             .map { try DIDDocument.VerificationMethod(
                 did: peerDID.string,
-                ecnumbasis: $0.ecnumbasis,
+                ecnumbasis: String($1.dropFirst()),
                 material: $0.material
             ) }
         
         let agreementVerificationMethods = try agreementKeys
-            .map { try decodeMultibaseEcnumbasis(ecnumbasis: $0, format: format) }
+            .map { (try decodeMultibaseEcnumbasis(ecnumbasis: $0, format: format), $0) }
             .map { try DIDDocument.VerificationMethod(
                 did: peerDID.string,
-                ecnumbasis: $0.ecnumbasis,
+                ecnumbasis: String($1.dropFirst()),
                 material: $0.material
             ) }
         

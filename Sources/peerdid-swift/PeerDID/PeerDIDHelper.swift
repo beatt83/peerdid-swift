@@ -165,12 +165,7 @@ extension PeerDIDHelper {
     }
     
     public func encodePeerDIDService(service: DIDDocument.Service) throws -> String {
-        let encoder = JSONEncoder()
-        if #available(macOS 10.15, *) {
-            encoder.outputFormatting = [.withoutEscapingSlashes, .sortedKeys]
-        } else {
-            encoder.outputFormatting = .sortedKeys
-        }
+        let encoder = JSONEncoder.peerDIDEncoder()
         let peerDIDService = PeerDIDService(from: service)
         guard let jsonStr = String(data: try encoder.encode(peerDIDService), encoding: .utf8) else {
             throw PeerDIDError.somethingWentWrong
@@ -189,7 +184,7 @@ extension PeerDIDHelper {
     
     public func decodedPeerDIDService(did: String, serviceString: String) throws -> DIDDocument.Service {
         guard
-            let serviceBase64Data = Data(base64URLEncoded: String(serviceString.dropFirst())),
+            let serviceBase64Data = Data(base64URLEncoded: serviceString),
             let serviceStr = String(data: serviceBase64Data, encoding: .utf8)
         else {
             throw PeerDIDError.invalidPeerDIDService

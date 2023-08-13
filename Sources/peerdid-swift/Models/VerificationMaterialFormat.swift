@@ -18,15 +18,15 @@ public enum VerificationMaterialFormat: String, Codable {
 public enum VerificationMaterialType: RawRepresentable, Codable {
     
     public enum AgreementType: String, Codable {
-        case jsonWebKey2020
-        case x25519KeyAgreementKey2019
-        case x25519KeyAgreementKey2020
+        case jsonWebKey2020 = "JsonWebKey2020"
+        case x25519KeyAgreementKey2019 = "X25519KeyAgreementKey2019"
+        case x25519KeyAgreementKey2020 = "X25519KeyAgreementKey2020"
     }
     
     public enum AuthenticationType: String, Codable {
-        case jsonWebKey2020
-        case ed25519VerificationKey2018
-        case ed25519VerificationKey2020
+        case jsonWebKey2020 = "JsonWebKey2020"
+        case ed25519VerificationKey2018 = "Ed25519VerificationKey2018"
+        case ed25519VerificationKey2020 = "Ed25519VerificationKey2020"
     }
     
     case agreement(AgreementType)
@@ -85,7 +85,7 @@ extension VerificationMaterial {
         switch format {
         case .jwk:
             let jwk = try JWK(key: key, type: type)
-            let encoder = JSONEncoder()
+            let encoder = JSONEncoder.peerDIDEncoder()
             self.value = try encoder.encode(jwk)
         case .base58:
             guard let encoded = BaseX.encode(key, into: .base58BTC).data(using: .utf8) else {
@@ -122,5 +122,47 @@ extension VerificationMaterial {
             let multibaseDecoded = try BaseEncoding.decode(multibaseStr).data
             return try Multicodec().fromMulticodec(value: multibaseDecoded).data
         }
+    }
+    
+    public func convertToBase58() throws -> VerificationMaterial {
+        guard self.format != .base58 else { return self }
+        
+        let newType: VerificationMaterialType
+        switch type {
+        case .agreement:
+            newType = .agreement(.x25519KeyAgreementKey2019)
+        case .authentication:
+            newType = .authentication(.ed25519VerificationKey2018)
+        }
+        
+        return try .init(format: .base58, key: try self.decodedKey(), type: newType)
+    }
+    
+    public func convertToJWK() throws -> VerificationMaterial {
+        guard self.format != .jwk else { return self }
+        
+        let newType: VerificationMaterialType
+        switch type {
+        case .agreement:
+            newType = .agreement(.jsonWebKey2020)
+        case .authentication:
+            newType = .authentication(.jsonWebKey2020)
+        }
+        
+        return try .init(format: .jwk, key: try self.decodedKey(), type: newType)
+    }
+    
+    public func convertToMultibase() throws -> VerificationMaterial {
+        guard self.format != .multibase else { return self }
+        
+        let newType: VerificationMaterialType
+        switch type {
+        case .agreement:
+            newType = .agreement(.x25519KeyAgreementKey2020)
+        case .authentication:
+            newType = .authentication(.ed25519VerificationKey2020)
+        }
+        
+        return try .init(format: .multibase, key: try self.decodedKey(), type: newType)
     }
 }

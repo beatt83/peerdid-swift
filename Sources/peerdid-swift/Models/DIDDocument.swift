@@ -4,7 +4,7 @@
 //
 //  Created by Gonçalo Frade on 11/08/2023.
 //
-
+import BaseX
 import Foundation
 
 public struct DIDDocument {
@@ -64,7 +64,7 @@ extension DIDDocument.VerificationMethod: Codable {
         }
         if
             let base58 = try container.decodeIfPresent(String.self, forKey: .publicKeyBase58),
-            let data = Data(base64Encoded: base58)
+            let data = Data(base64URLEncoded: base58)
         {
             material = VerificationMaterial(
                 format: .base58,
@@ -73,7 +73,7 @@ extension DIDDocument.VerificationMethod: Codable {
             )
         } else if
             let jwk = try container.decodeIfPresent(String.self, forKey: .publicKeyJwk),
-            let data = Data(base64Encoded: jwk)
+            let data = Data(base64URLEncoded: jwk)
         {
             material = VerificationMaterial(
                 format: .jwk,
@@ -82,7 +82,7 @@ extension DIDDocument.VerificationMethod: Codable {
             )
         } else if
             let multibase = try container.decodeIfPresent(String.self, forKey: .publicKeyMultibase),
-            let data = Data(base64Encoded: multibase)
+            let data = Data(base64URLEncoded: multibase)
         {
             material = VerificationMaterial(
                 format: .multibase,
@@ -106,13 +106,14 @@ extension DIDDocument.VerificationMethod: Codable {
         try container.encode(id, forKey: .id)
         try container.encode(controller, forKey: .controller)
         try container.encode(material.type.rawValue, forKey: .type)
+        
         switch material.format {
         case .base58:
-            try container.encode(material.value.base64EncodedString(), forKey: .publicKeyBase58)
+            try container.encode(String(data: try material.convertToBase58().value, encoding: .utf8), forKey: .publicKeyBase58)
         case .jwk:
-            try container.encode(material.value.base64EncodedString(), forKey: .publicKeyJwk)
+            try container.encode(try material.getJWKValue(), forKey: .publicKeyJwk)
         case .multibase:
-            try container.encode(material.value.base64EncodedString(), forKey: .publicKeyMultibase)
+            try container.encode(String(data: try material.convertToMultibase().value, encoding: .utf8), forKey: .publicKeyMultibase)
         }
     }
 }
@@ -138,5 +139,13 @@ extension VerificationMaterialFormat {
         case .jwk: return "publicKeyMultibase"
         case .multibase: return "publicKeyJwk"
         }
+    }
+}
+
+private extension VerificationMaterial {
+    func getJWKValue() throws -> JWK {
+        let jwkConverted = try convertToJWK()
+        let decoder = JSONDecoder()
+        return try decoder.decode(JWK.self, from: jwkConverted.value)
     }
 }

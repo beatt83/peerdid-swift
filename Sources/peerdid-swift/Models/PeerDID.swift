@@ -31,23 +31,18 @@ public struct PeerDID {
     }
     
     public init(didString: String) throws {
-        let pattern = #"^did:peer:([0-9a-zA-Z])([0-9a-zA-Z]+)$"#
-        let regex = try? NSRegularExpression(pattern: pattern)
-        let matches = regex?.matches(
-            in: didString,
-            options: [],
-            range: NSRange(location: 0, length: didString.count)
-        )
-
-        guard let match = matches?.first else {
-            throw PeerDIDError.invalidPeerDIDString
-        }
-
-        let algoStr = (didString as NSString).substring(with: match.range(at: 1))
-        let methodId = (didString as NSString).substring(with: match.range(at: 2))
-        self.methodId = algoStr + methodId
+        var components = didString.components(separatedBy: ":")
+        guard
+            components.count >= 3,
+            components.removeFirst() == "did", // removed schema and check if its did
+            components.removeFirst() == "peer" // removed method and check if it is peer
+        else { throw PeerDIDError.invalidPeerDIDString }
         
-        guard let algo = Algorithm(rawValue: algoStr) else {
+        let methodId = components.joined()
+        let algoString = String(methodId.prefix(1))
+        self.methodId = methodId
+        
+        guard let algo = Algorithm(rawValue: algoString) else {
             throw PeerDIDError.unsupportedPeerDIDAlgo(String(methodId.prefix(1)))
         }
         self.algo = algo

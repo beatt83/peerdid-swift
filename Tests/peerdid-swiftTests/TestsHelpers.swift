@@ -14,7 +14,7 @@ extension JWK {
     }
     
     static func testableData(crv: String = "Ed25519", x: String = "owBhCbktDjkfS6PdQddT0D3yjSitaSysP3YimJ_YgmA") -> Data {
-        let encoder = JSONEncoder()
+        let encoder = JSONEncoder.peerDIDEncoder()
         return try! encoder.encode(testable(crv: crv, x: x))
     }
 }
