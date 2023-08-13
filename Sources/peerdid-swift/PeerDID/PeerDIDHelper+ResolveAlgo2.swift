@@ -30,13 +30,12 @@ extension PeerDIDHelper {
                 material: $0.material
             ) }
         
-        let documentService = try service
-            .map { try decodedPeerDIDService(did: peerDID.string, serviceString: $0) }
+        let documentService = try service.map {  try decodedPeerDIDService(did: peerDID.string, serviceString: $0) }
         
         return DIDDocument(
             did: peerDID.string,
             verificationMethods: authenticationVerificationMethods + agreementVerificationMethods,
-            services: documentService
+            services: documentService ?? []
         )
     }
 }

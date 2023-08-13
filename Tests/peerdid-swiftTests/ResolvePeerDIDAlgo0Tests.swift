@@ -39,7 +39,7 @@ final class ResolvePeerDIDAlgo0Tests: XCTestCase {
         XCTAssertTrue(encodedDocument.contains("\"publicKeyJwk\":{\"crv\":\"Ed25519\",\"kty\":\"OKP\",\"x\":\"owBhCbktDjkfS6PdQddT0D3yjSitaSysP3YimJ_YgmA\"}"))
         XCTAssertTrue(encodedDocument.contains("\"crv\":\"Ed25519\""))
         XCTAssertTrue(encodedDocument.contains("\"x\":\"owBhCbktDjkfS6PdQddT0D3yjSitaSysP3YimJ_YgmA\""))
-        XCTAssertTrue(encodedDocument.contains("\"type\":\"jsonWebKey2020\""))
+        XCTAssertTrue(encodedDocument.contains("\"type\":\"JsonWebKey2020\""))
         XCTAssertTrue(encodedDocument.contains("\"id\":\"did:peer:0z6MkqRYqQiSgvZQdnBytw86Qbs2ZWUkGv22od935YF4s8M7V#z6MkqRYqQiSgvZQdnBytw86Qbs2ZWUkGv22od935YF4s8M7V)\""))
     }
     

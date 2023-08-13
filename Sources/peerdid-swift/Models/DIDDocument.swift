@@ -19,8 +19,8 @@ public struct DIDDocument {
         let id: String
         let type: String
         let serviceEndpoint: String
-        let routingKeys: [String]
-        let accept: [String]
+        let routingKeys: [String]?
+        let accept: [String]?
     }
     
     public let did: String

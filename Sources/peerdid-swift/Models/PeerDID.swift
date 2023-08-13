@@ -74,10 +74,10 @@ public struct PeerDID {
             .map { String($0.dropFirst()) }
     }
     
-    public var algo2Service: [String] {
-        guard algo == ._2 else { return [] }
+    public var algo2Service: String? {
+        guard algo == ._2 else { return nil }
         return allAttributes
             .filter { $0.hasPrefix(Algorithm.Algo2Prefix.service.rawValue) }
-            .map { String($0.dropFirst()) }
+            .first.map { String($0.dropFirst()) }
     }
 }
