@@ -4,24 +4,29 @@
 
 Welcome to `peerdid-swift`, a Swift package enabling the creation and resolution of Peer DIDs.
 
+[![Swift](https://img.shields.io/badge/swift-5.3+-brightgreen.svg)]()[![iOS](https://img.shields.io/badge/ios-15.0+-brightgreen.svg)]()[![MacOS](https://img.shields.io/badge/macos-12.0+-brightgreen.svg)]()[![WatchOS](https://img.shields.io/badge/watchos-7.0+-brightgreen.svg)]()
+
 ## Requirements
 
 - Swift 5.8 or later
 - Dependencies:
+    - [didcore-swift](https://github.com/beatt83/didcore-swift)
     - [swift-multibase](https://github.com/swift-libp2p/swift-multibase)
     - [swift-bases](https://github.com/swift-libp2p/swift-bases)
-    
-## Setup
 
-1. Add peerdid-swift as a dependency in your Package.swift
+## Installation
+
+### Swift Package Manager (SPM)
+
+To integrate `DIDCore` into your Xcode project using SPM, specify it in your `Package.swift`:
 
 ```swift
-.dependencies([
-    .package(url: "git@github.com:beatt83/peerdid-swift.git", from: "0.0.5")
-])
+dependencies: [
+    .package(url: "git@github.com:beatt83/peerdid-swift.git", .upToNextMajor(from: "1.0.0"))
+]
 ```
 
-2. Add the PeerDID target to your target's dependencies
+Add the PeerDID target to your target's dependencies:
 
 ```swift
 .target(name: "YOUR_TARGET_NAME", dependencies: [

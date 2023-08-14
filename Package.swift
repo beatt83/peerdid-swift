@@ -13,7 +13,7 @@ let package = Package(
     dependencies: [
         .package(url: "https://github.com/swift-libp2p/swift-multibase.git", .upToNextMajor(from: "0.0.1")),
         .package(url: "https://github.com/swift-libp2p/swift-bases.git", .upToNextMajor(from: "0.0.3")),
-        .package(path: "../didcore-swift")
+        .package(url: "git@github.com:beatt83/didcore-swift.git", branch: "main")
     ],
     targets: [
         .target(
