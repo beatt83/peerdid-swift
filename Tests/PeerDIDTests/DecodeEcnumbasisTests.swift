@@ -9,7 +9,7 @@ import XCTest
 
 final class DecodeEcnumbasisTest: XCTestCase {
     func testDecodeFormatBase58KeyED25519() throws {
-        let expected = VerificationMaterial(
+        let expected = PeerDIDVerificationMaterial(
             format: .base58,
             value: "ByHnpUCFb1vAfh9CFZ8ZkmUZguURW8nSw889hy6rD8L7".data(using: .utf8)!,
             type: .authentication(.ed25519VerificationKey2018)
@@ -24,7 +24,7 @@ final class DecodeEcnumbasisTest: XCTestCase {
     }
     
     func testDecodeFormatBase58KeyX25519() throws {
-        let expected = VerificationMaterial(
+        let expected = PeerDIDVerificationMaterial(
             format: .base58,
             value: "JhNWeSVLMYccCk7iopQW4guaSJTojqpMEELgSLhKwRr".data(using: .utf8)!,
             type: .agreement(.x25519KeyAgreementKey2019)
@@ -39,7 +39,7 @@ final class DecodeEcnumbasisTest: XCTestCase {
     }
     
     func testDecodeFormatMultibaseKeyEd25519() throws {
-        let expected = VerificationMaterial(
+        let expected = PeerDIDVerificationMaterial(
             format: .multibase,
             value: "z6MkqRYqQiSgvZQdnBytw86Qbs2ZWUkGv22od935YF4s8M7V".data(using: .utf8)!,
             type: .authentication(.ed25519VerificationKey2020)
@@ -54,7 +54,7 @@ final class DecodeEcnumbasisTest: XCTestCase {
     }
     
     func testDecodeFormatMultibaseKeyX25519() throws {
-        let expected = VerificationMaterial(
+        let expected = PeerDIDVerificationMaterial(
             format: .multibase,
             value: "z6LSbysY2xFMRpGMhb7tFTLMpeuPRaqaWM1yECx2AtzE3KCc".data(using: .utf8)!,
             type: .agreement(.x25519KeyAgreementKey2020)
@@ -76,7 +76,7 @@ final class DecodeEcnumbasisTest: XCTestCase {
         let encoder = JSONEncoder.peerDIDEncoder()
         let encodedJWK = try encoder.encode(expectedJWK)
         
-        let expected = VerificationMaterial(
+        let expected = PeerDIDVerificationMaterial(
             format: .jwk,
             value: encodedJWK,
             type: .authentication(.jsonWebKey2020)
@@ -98,7 +98,7 @@ final class DecodeEcnumbasisTest: XCTestCase {
         let encoder = JSONEncoder.peerDIDEncoder()
         let encodedJWK = try encoder.encode(expectedJWK)
         
-        let expected = VerificationMaterial(
+        let expected = PeerDIDVerificationMaterial(
             format: .jwk,
             value: encodedJWK,
             type: .agreement(.jsonWebKey2020)
@@ -113,8 +113,8 @@ final class DecodeEcnumbasisTest: XCTestCase {
     }
 }
 
-extension VerificationMaterial: Equatable {
-    public static func == (lhs: VerificationMaterial, rhs: VerificationMaterial) -> Bool {
+extension PeerDIDVerificationMaterial: Equatable {
+    public static func == (lhs: PeerDIDVerificationMaterial, rhs: PeerDIDVerificationMaterial) -> Bool {
         lhs.format == rhs.format && lhs.value == rhs.value && lhs.type == rhs.type
     }
     

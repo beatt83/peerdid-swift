@@ -5,6 +5,7 @@
 //  Created by Gonçalo Frade on 12/08/2023.
 //
 
+import DIDCore
 import Foundation
 
 extension PeerDIDHelper {
@@ -13,12 +14,10 @@ extension PeerDIDHelper {
         let keyStr = String(peerDID.methodId.dropFirst())
         let decoded = try PeerDIDHelper().decodeMultibaseEcnumbasis(ecnumbasis: keyStr, format: format)
         return DIDDocument(
-            did: peerDID.string,
-            verificationMethods: [.init(
-                id: "\(peerDID.string)#\(keyStr))",
-                controller: peerDID.string,
-                material: decoded.material
-            )],
+            id: peerDID.string,
+            verificationMethods: [
+                try .init(did: peerDID.string, ecnumbasis: keyStr, material: decoded.material)
+            ],
             services: []
         )
     }

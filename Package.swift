@@ -12,7 +12,8 @@ let package = Package(
     ],
     dependencies: [
         .package(url: "https://github.com/swift-libp2p/swift-multibase.git", .upToNextMajor(from: "0.0.1")),
-        .package(url: "https://github.com/swift-libp2p/swift-bases.git", .upToNextMajor(from: "0.0.3"))
+        .package(url: "https://github.com/swift-libp2p/swift-bases.git", .upToNextMajor(from: "0.0.3")),
+        .package(path: "../didcore-swift")
     ],
     targets: [
         .target(
@@ -20,11 +21,15 @@ let package = Package(
             dependencies: [
                 .product(name: "Multibase", package: "swift-multibase"),
                 .product(name:  "BaseX", package: "swift-bases"),
-                .product(name:  "Base64", package: "swift-bases")
+                .product(name:  "Base64", package: "swift-bases"),
+                .product(name: "DIDCore", package: "didcore-swift")
             ]
         ),
         .testTarget(
             name: "PeerDIDTests",
-            dependencies: ["PeerDID"]),
+            dependencies: [
+                "PeerDID",
+                .product(name: "DIDCore", package: "didcore-swift")
+            ]),
     ]
 )

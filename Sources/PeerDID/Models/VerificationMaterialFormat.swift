@@ -5,81 +5,22 @@
 //  Created by Gonçalo Frade on 11/08/2023.
 //
 
+import DIDCore
 import BaseX
 import Foundation
 import Multibase
 
-public enum VerificationMaterialFormat: String, Codable {
-    case jwk
-    case base58
-    case multibase
-}
-
-public enum VerificationMaterialType: RawRepresentable, Codable {
-    
-    public enum AgreementType: String, Codable {
-        case jsonWebKey2020 = "JsonWebKey2020"
-        case x25519KeyAgreementKey2019 = "X25519KeyAgreementKey2019"
-        case x25519KeyAgreementKey2020 = "X25519KeyAgreementKey2020"
-    }
-    
-    public enum AuthenticationType: String, Codable {
-        case jsonWebKey2020 = "JsonWebKey2020"
-        case ed25519VerificationKey2018 = "Ed25519VerificationKey2018"
-        case ed25519VerificationKey2020 = "Ed25519VerificationKey2020"
-    }
-    
-    case agreement(AgreementType)
-    case authentication(AuthenticationType)
-    
-    public init?(rawValue: String) {
-        if let agreementType = AgreementType(rawValue: rawValue) {
-            self = .agreement(agreementType)
-        } else if let autheticationType = AuthenticationType(rawValue: rawValue) {
-            self = .authentication(autheticationType)
-        }
-        return nil
-    }
-    
-    public var rawValue: String {
-        switch self {
-        case .agreement(let type):
-            return type.rawValue
-        case .authentication(let type):
-            return type.rawValue
-        }
-    }
-    
-    var isAuthentication: Bool {
-        switch self {
-        case .agreement:
-            return false
-        case .authentication:
-            return true
-        }
-    }
-    
-    var isAgreement: Bool {
-        switch self {
-        case .agreement:
-            return true
-        case .authentication:
-            return false
-        }
-    }
-}
-
-public struct VerificationMaterial {
+public struct PeerDIDVerificationMaterial {
     public let format: VerificationMaterialFormat
     public let value: Data
-    public let type: VerificationMaterialType
+    public let type: KnownVerificationMaterialType
 }
 
-extension VerificationMaterial: Codable {}
+extension PeerDIDVerificationMaterial: Codable {}
 
-extension VerificationMaterial {
+extension PeerDIDVerificationMaterial {
     
-    public init(format: VerificationMaterialFormat, key: Data, type: VerificationMaterialType) throws {
+    public init(format: VerificationMaterialFormat, key: Data, type: KnownVerificationMaterialType) throws {
         self.format = format
         self.type = type
         switch format {
@@ -124,10 +65,10 @@ extension VerificationMaterial {
         }
     }
     
-    public func convertToBase58() throws -> VerificationMaterial {
+    public func convertToBase58() throws -> PeerDIDVerificationMaterial {
         guard self.format != .base58 else { return self }
         
-        let newType: VerificationMaterialType
+        let newType: KnownVerificationMaterialType
         switch type {
         case .agreement:
             newType = .agreement(.x25519KeyAgreementKey2019)
@@ -138,10 +79,10 @@ extension VerificationMaterial {
         return try .init(format: .base58, key: try self.decodedKey(), type: newType)
     }
     
-    public func convertToJWK() throws -> VerificationMaterial {
+    public func convertToJWK() throws -> PeerDIDVerificationMaterial {
         guard self.format != .jwk else { return self }
         
-        let newType: VerificationMaterialType
+        let newType: KnownVerificationMaterialType
         switch type {
         case .agreement:
             newType = .agreement(.jsonWebKey2020)
@@ -152,10 +93,10 @@ extension VerificationMaterial {
         return try .init(format: .jwk, key: try self.decodedKey(), type: newType)
     }
     
-    public func convertToMultibase() throws -> VerificationMaterial {
+    public func convertToMultibase() throws -> PeerDIDVerificationMaterial {
         guard self.format != .multibase else { return self }
         
-        let newType: VerificationMaterialType
+        let newType: KnownVerificationMaterialType
         switch type {
         case .agreement:
             newType = .agreement(.x25519KeyAgreementKey2020)

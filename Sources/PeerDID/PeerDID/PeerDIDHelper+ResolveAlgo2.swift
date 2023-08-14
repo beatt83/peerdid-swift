@@ -5,6 +5,7 @@
 //  Created by Gonçalo Frade on 12/08/2023.
 //
 
+import DIDCore
 import Foundation
 
 extension PeerDIDHelper {
@@ -33,7 +34,7 @@ extension PeerDIDHelper {
         let documentService = try service.map {  try decodedPeerDIDService(did: peerDID.string, serviceString: $0) }
         
         return DIDDocument(
-            did: peerDID.string,
+            id: peerDID.string,
             verificationMethods: authenticationVerificationMethods + agreementVerificationMethods,
             services: documentService ?? []
         )

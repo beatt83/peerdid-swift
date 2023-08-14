@@ -6,6 +6,7 @@
 //
 
 import Base64
+import DIDCore
 import Foundation
 
 public struct JWK {
@@ -17,7 +18,7 @@ public struct JWK {
 extension JWK: Codable {}
 
 extension JWK {
-    init(key: Data, type: VerificationMaterialType) throws {
+    init(key: Data, type: KnownVerificationMaterialType) throws {
         self.x = key.base64URLEncoded(padded: false)
         switch type {
         case .agreement(.jsonWebKey2020):

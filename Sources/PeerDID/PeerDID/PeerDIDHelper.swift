@@ -6,12 +6,13 @@
 //
 
 import BaseX
+import DIDCore
 import Foundation
 import Multibase
 
 public struct PeerDIDHelper {
     
-    public static func createAlgo0(key: VerificationMaterial) throws -> PeerDID {
+    public static func createAlgo0(key: PeerDIDVerificationMaterial) throws -> PeerDID {
         let keyEcnumbasis = try PeerDIDHelper().createMultibaseEncnumbasis(material: key)
         return PeerDID(
             algo: ._0,
@@ -20,8 +21,8 @@ public struct PeerDIDHelper {
     }
     
     public static func createAlgo2(
-        authenticationKeys: [VerificationMaterial],
-        agreementKeys: [VerificationMaterial],
+        authenticationKeys: [PeerDIDVerificationMaterial],
+        agreementKeys: [PeerDIDVerificationMaterial],
         services: [DIDDocument.Service]
     ) throws -> PeerDID {
         
@@ -51,14 +52,14 @@ public struct PeerDIDHelper {
         case ._0:
             return try PeerDIDHelper().resolvePeerDIDAlgo0(peerDID: peerDID, format: format)
         case ._2:
-            return DIDDocument(did: "", verificationMethods: [], services: [])
+            return DIDDocument(id: "", verificationMethods: [], services: [])
         }
     }
 }
 
 // MARK: Ecnumbasis
 public extension PeerDIDHelper {
-    func createMultibaseEncnumbasis(material: VerificationMaterial) throws -> String {
+    func createMultibaseEncnumbasis(material: PeerDIDVerificationMaterial) throws -> String {
         let encodedCodec = Multicodec().toMulticodec(
             value: try material.decodedKey(),
             keyType: material.type
@@ -70,24 +71,24 @@ public extension PeerDIDHelper {
     func decodeMultibaseEcnumbasis(
         ecnumbasis: String,
         format: VerificationMaterialFormat
-    ) throws -> (ecnumbasis: String, material: VerificationMaterial) {
+    ) throws -> (ecnumbasis: String, material: PeerDIDVerificationMaterial) {
         let (base, decodedMultibase) = try BaseEncoding.decode(ecnumbasis)
         let (codec, decodedMulticodec) = try Multicodec().fromMulticodec(value: decodedMultibase)
         
         try decodedMulticodec.validateKeyLength()
         
-        let material: VerificationMaterial
+        let material: PeerDIDVerificationMaterial
         
         switch (format, codec) {
         case (.jwk, .X25519):
-            let type = VerificationMaterialType.agreement(.jsonWebKey2020)
+            let type = KnownVerificationMaterialType.agreement(.jsonWebKey2020)
             material = try .init(
                 format: format,
                 key: decodedMulticodec,
                 type: type
             )
         case (.jwk, .ED25519):
-            let type = VerificationMaterialType.authentication(.jsonWebKey2020)
+            let type = KnownVerificationMaterialType.authentication(.jsonWebKey2020)
             material = try .init(
                 format: format,
                 key: decodedMulticodec,
@@ -140,29 +141,57 @@ extension PeerDIDHelper {
             self.a = a
         }
         
-        init(from: DIDDocument.Service) {
+        init(from: DIDDocument.Service) throws {
             self.t = from.type
-            self.s = from.serviceEndpoint
+            self.s = try from.serviceEndpoint.getJsonString() ?? ""
             self.r = from.routingKeys
             self.a = from.accept
         }
         
-        func toDIDDocumentService(did: String, index: Int) -> DIDDocument.Service {
+        func toDIDDocumentService(did: String, index: Int) throws -> DIDDocument.Service {
+            let serviceEndpoint: DIDDocument.Service.ServiceEndpoint
+            if let s = try? parseServiceEndpoint(serviceEndpoint: s) {
+                serviceEndpoint = s
+            } else {
+                serviceEndpoint = try parseServiceEndpoint(serviceEndpoint: "\"\(s)\"")
+            }
             return .init(
                 id: "\(did)#\(t.lowercased())-\(index+1)",
                 type: t,
-                serviceEndpoint: s,
+                serviceEndpoint: serviceEndpoint,
                 routingKeys: r,
                 accept: a
             )
+        }
+        
+        private func parseServiceEndpoint(serviceEndpoint: String) throws -> DIDDocument.Service.ServiceEndpoint {
+            guard let serviceData = serviceEndpoint.data(using: .utf8) else {
+                throw PeerDIDError.somethingWentWrong
+            }
+            return try JSONDecoder().decode(DIDDocument.Service.ServiceEndpoint.self, from: serviceData)
         }
         
         func encode(to encoder: Encoder) throws {
             var container = encoder.container(keyedBy: PeerDIDHelper.PeerDIDService.CodingKeys.self)
             try container.encode(self.s, forKey: PeerDIDHelper.PeerDIDService.CodingKeys.s)
             try container.encode(self.r, forKey: PeerDIDHelper.PeerDIDService.CodingKeys.r)
-            try container.encode(self.a, forKey: PeerDIDHelper.PeerDIDService.CodingKeys.a)
-            try container.encode(self.t, forKey: PeerDIDHelper.PeerDIDService.CodingKeys.t)
+            try container.encodeIfPresent(self.a, forKey: PeerDIDHelper.PeerDIDService.CodingKeys.a)
+            try container.encodeIfPresent(self.t, forKey: PeerDIDHelper.PeerDIDService.CodingKeys.t)
+        }
+        
+        enum CodingKeys: CodingKey {
+            case t
+            case s
+            case r
+            case a
+        }
+        
+        init(from decoder: Decoder) throws {
+            let container: KeyedDecodingContainer<PeerDIDHelper.PeerDIDService.CodingKeys> = try decoder.container(keyedBy: PeerDIDHelper.PeerDIDService.CodingKeys.self)
+            self.t = try container.decode(String.self, forKey: PeerDIDHelper.PeerDIDService.CodingKeys.t)
+            self.s = try container.decode(String.self, forKey: PeerDIDHelper.PeerDIDService.CodingKeys.s)
+            self.r = try container.decodeIfPresent([String].self, forKey: PeerDIDHelper.PeerDIDService.CodingKeys.r)
+            self.a = try container.decodeIfPresent([String].self, forKey: PeerDIDHelper.PeerDIDService.CodingKeys.a)
         }
     }
     
@@ -173,13 +202,13 @@ extension PeerDIDHelper {
         let parsingStr: String
         
         if services.count > 1 {
-            let peerDidServices = services.map { PeerDIDService(from: $0) }
+            let peerDidServices = try services.map { try PeerDIDService(from: $0) }
             guard let jsonStr = String(data: try encoder.encode(peerDidServices), encoding: .utf8) else {
                 throw PeerDIDError.somethingWentWrong
             }
             parsingStr = jsonStr
         } else if let service = services.first {
-            let peerDIDService = PeerDIDService(from: service)
+            let peerDIDService = try PeerDIDService(from: service)
             guard let jsonStr = String(data: try encoder.encode(peerDIDService), encoding: .utf8) else {
                 throw PeerDIDError.somethingWentWrong
             }
@@ -218,17 +247,17 @@ extension PeerDIDHelper {
             let service = try? decoder.decode(
                 PeerDIDService.self,
                 from: peerDIDServiceData
-            ).toDIDDocumentService(did: did, index: 0)
+            )
         {
-            return [service]
+            return [try service.toDIDDocumentService(did: did, index: 0)]
         } else {
             let services = try decoder.decode(
                 [PeerDIDService].self,
                 from: peerDIDServiceData
             )
             
-            return Dictionary(grouping: services, by: \.t)
-                .mapValues { $0.enumerated().map { $0.element.toDIDDocumentService(did: did, index: $0.offset) } }
+            return try Dictionary(grouping: services, by: \.t)
+                .mapValues { try $0.enumerated().map { try $0.element.toDIDDocumentService(did: did, index: $0.offset) } }
                 .flatMap { $0.value }
         }
     }
@@ -244,9 +273,19 @@ private extension Data {
 
 extension DIDDocument.VerificationMethod {
     
-    public init(did: String, ecnumbasis: String, material: VerificationMaterial) throws {
-        self.id = did + "#\(ecnumbasis)"
-        self.controller = did
-        self.material = material
+    init(did: String, ecnumbasis: String, material: PeerDIDVerificationMaterial) throws {
+        self.init(
+            id: did + "#\(ecnumbasis)",
+            controller: did,
+            type: material.type.rawValue,
+            material: .init(format: material.format, value: material.value)
+        )
+    }
+}
+extension DIDDocument.Service.ServiceEndpoint {
+    
+    func getJsonString() throws -> String? {
+        let encoder = JSONEncoder.peerDIDEncoder()
+        return String(data: try encoder.encode(self), encoding: .utf8)
     }
 }
