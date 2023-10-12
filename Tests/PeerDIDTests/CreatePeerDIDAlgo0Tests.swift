@@ -5,6 +5,7 @@
 //  Created by Gonçalo Frade on 12/08/2023.
 //
 
+import DIDCore
 @testable import PeerDID
 import XCTest
 
@@ -32,6 +33,7 @@ final class CreatePeerDIDAlgo0Tests: XCTestCase {
     
     func testCreatePeerDIDAlgo0JWKKey() throws {
         let jwk = JWK(
+            kty: "OKP", 
             crv: "Ed25519",
             x: "owBhCbktDjkfS6PdQddT0D3yjSitaSysP3YimJ_YgmA"
         )

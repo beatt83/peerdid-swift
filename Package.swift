@@ -1,4 +1,4 @@
-// swift-tools-version: 5.8
+// swift-tools-version: 5.7.1
 // The swift-tools-version declares the minimum version of Swift required to build this package.
 
 import PackageDescription
@@ -13,7 +13,7 @@ let package = Package(
     dependencies: [
         .package(url: "https://github.com/swift-libp2p/swift-multibase.git", .upToNextMajor(from: "0.0.1")),
         .package(url: "https://github.com/swift-libp2p/swift-bases.git", .upToNextMajor(from: "0.0.3")),
-        .package(url: "git@github.com:beatt83/didcore-swift.git", branch: "main")
+        .package(url: "git@github.com:beatt83/didcore-swift.git", .upToNextMinor(from: "1.0.0"))
     ],
     targets: [
         .target(

@@ -4,6 +4,7 @@
 //
 //  Created by Gonçalo Frade on 12/08/2023.
 //
+import DIDCore
 @testable import PeerDID
 import XCTest
 
@@ -70,6 +71,7 @@ final class DecodeEcnumbasisTest: XCTestCase {
     
     func testDecodeFormatJWKKeyEd25519() throws {
         let expectedJWK = JWK(
+            kty: "OKP",
             crv: "Ed25519",
             x: "owBhCbktDjkfS6PdQddT0D3yjSitaSysP3YimJ_YgmA"
         )
@@ -92,6 +94,7 @@ final class DecodeEcnumbasisTest: XCTestCase {
     
     func testDecodeFormatJWKKeyX25519() throws {
         let expectedJWK = JWK(
+            kty: "OKP",
             crv: "X25519",
             x: "BIiFcQEn3dfvB2pjlhOQQour6jXy9d5s2FKEJNTOJik"
         )

@@ -47,7 +47,10 @@ extension PeerDIDVerificationMaterial {
         case .jwk:
             let decoder = JSONDecoder()
             let jwk = try decoder.decode(JWK.self, from: value)
-            guard let decoded = Data(base64URLEncoded: jwk.x) else {
+            guard 
+                let x = jwk.x,
+                let decoded = Data(base64URLEncoded: x)
+            else {
                 throw PeerDIDError.invalidBase64URLKey
             }
             return decoded
