@@ -4,7 +4,9 @@
 
 Welcome to `peerdid-swift`, a Swift package enabling the creation and resolution of Peer DIDs.
 
-[![Swift](https://img.shields.io/badge/swift-5.3+-brightgreen.svg)]()[![iOS](https://img.shields.io/badge/ios-15.0+-brightgreen.svg)]()[![MacOS](https://img.shields.io/badge/macos-12.0+-brightgreen.svg)]()[![WatchOS](https://img.shields.io/badge/watchos-7.0+-brightgreen.svg)]()
+[PeerDID Specification](https://identity.foundation/peer-did-method-spec/)
+
+[![Swift](https://img.shields.io/badge/swift-brightgreen.svg)]() [![iOS](https://img.shields.io/badge/ios-brightgreen.svg)]() [![MacOS](https://img.shields.io/badge/macos-brightgreen.svg)]() [![WatchOS](https://img.shields.io/badge/watchos-brightgreen.svg)]() [![TvOS](https://img.shields.io/badge/tvos-brightgreen.svg)]()
 
 ## Requirements
 
