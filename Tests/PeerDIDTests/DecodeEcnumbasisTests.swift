@@ -21,7 +21,7 @@ final class DecodeEcnumbasisTest: XCTestCase {
             format: .base58
         )
         
-        XCTAssertEqual(expected, decoded.material)
+        XCTAssertEqual(expected, decoded)
     }
     
     func testDecodeFormatBase58KeyX25519() throws {
@@ -36,7 +36,7 @@ final class DecodeEcnumbasisTest: XCTestCase {
             format: .base58
         )
         
-        XCTAssertEqual(expected, decoded.material)
+        XCTAssertEqual(expected, decoded)
     }
     
     func testDecodeFormatMultibaseKeyEd25519() throws {
@@ -51,7 +51,7 @@ final class DecodeEcnumbasisTest: XCTestCase {
             format: .multibase
         )
         
-        XCTAssertEqual(expected, decoded.material)
+        XCTAssertEqual(expected, decoded)
     }
     
     func testDecodeFormatMultibaseKeyX25519() throws {
@@ -66,7 +66,7 @@ final class DecodeEcnumbasisTest: XCTestCase {
             format: .multibase
         )
         
-        XCTAssertEqual(expected, decoded.material)
+        XCTAssertEqual(expected, decoded)
     }
     
     func testDecodeFormatJWKKeyEd25519() throws {
@@ -89,7 +89,7 @@ final class DecodeEcnumbasisTest: XCTestCase {
             format: .jwk
         )
         
-        XCTAssertEqual(expected, decoded.material)
+        XCTAssertEqual(expected, decoded)
     }
     
     func testDecodeFormatJWKKeyX25519() throws {
@@ -112,7 +112,7 @@ final class DecodeEcnumbasisTest: XCTestCase {
             format: .jwk
         )
         
-        XCTAssertEqual(expected, decoded.material)
+        XCTAssertEqual(expected, decoded)
     }
 }
 
