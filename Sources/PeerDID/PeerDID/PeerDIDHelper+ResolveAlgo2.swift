@@ -15,21 +15,30 @@ extension PeerDIDHelper {
         let agreementKeys = peerDID.algo2KeyAgreementKeys
         let service = peerDID.algo2Service
         
+        var keyIdCount = 1
         let authenticationVerificationMethods = try authenticationKeys
-            .map { (try decodeMultibaseEcnumbasis(ecnumbasis: $0, format: format), $0) }
-            .map { try DIDDocument.VerificationMethod(
-                did: peerDID.string,
-                ecnumbasis: String($1.dropFirst()),
-                material: $0.material
-            ) }
+            .map { try decodeMultibaseEcnumbasis(ecnumbasis: $0, format: format) }
+            .map {
+                let method = try DIDDocument.VerificationMethod(
+                    did: peerDID.string,
+                    id: "key-\(keyIdCount)",
+                    material: $0
+                )
+                keyIdCount+=1
+                return method
+            }
         
         let agreementVerificationMethods = try agreementKeys
-            .map { (try decodeMultibaseEcnumbasis(ecnumbasis: $0, format: format), $0) }
-            .map { try DIDDocument.VerificationMethod(
-                did: peerDID.string,
-                ecnumbasis: String($1.dropFirst()),
-                material: $0.material
-            ) }
+            .map { try decodeMultibaseEcnumbasis(ecnumbasis: $0, format: format) }
+            .map {
+                let method = try DIDDocument.VerificationMethod(
+                    did: peerDID.string,
+                    id: "key-\(keyIdCount)",
+                    material: $0
+                )
+                keyIdCount+=1
+                return method
+            }
         
         let documentService = try service.map {  try decodedPeerDIDService(did: peerDID.string, serviceString: $0) }
         

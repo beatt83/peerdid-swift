@@ -71,7 +71,7 @@ public extension PeerDIDHelper {
     func decodeMultibaseEcnumbasis(
         ecnumbasis: String,
         format: VerificationMaterialFormat
-    ) throws -> (ecnumbasis: String, material: PeerDIDVerificationMaterial) {
+    ) throws -> PeerDIDVerificationMaterial {
         let (base, decodedMultibase) = try BaseEncoding.decode(ecnumbasis)
         let (codec, decodedMulticodec) = try Multicodec().fromMulticodec(value: decodedMultibase)
         
@@ -120,7 +120,7 @@ public extension PeerDIDHelper {
             )
         }
         
-        return (base.charPrefix, material)
+        return material
     }
 }
 
@@ -129,6 +129,7 @@ public extension PeerDIDHelper {
 extension PeerDIDHelper {
     
     struct PeerDIDService: Codable {
+        
         let t: String // Type
         let s: String // Service Endpoint
         let r: [String]? // Routing keys
@@ -273,9 +274,9 @@ private extension Data {
 
 extension DIDDocument.VerificationMethod {
     
-    init(did: String, ecnumbasis: String, material: PeerDIDVerificationMaterial) throws {
+    init(did: String, id: String, material: PeerDIDVerificationMaterial) throws {
         self.init(
-            id: did + "#\(ecnumbasis)",
+            id: did + "#\(id)",
             controller: did,
             type: material.type.rawValue,
             material: .init(format: material.format, value: material.value)

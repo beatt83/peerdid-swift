@@ -16,7 +16,11 @@ extension PeerDIDHelper {
         return DIDDocument(
             id: peerDID.string,
             verificationMethods: [
-                try .init(did: peerDID.string, ecnumbasis: keyStr, material: decoded.material)
+                try .init(
+                    did: peerDID.string,
+                    id: keyStr,
+                    material: decoded
+                )
             ],
             services: []
         )
