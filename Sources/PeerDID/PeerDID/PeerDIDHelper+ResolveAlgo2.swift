@@ -13,7 +13,7 @@ extension PeerDIDHelper {
     public func resolvePeerDIDAlgo2(peerDID: PeerDID, format: VerificationMaterialFormat) throws -> DIDDocument {
         let authenticationKeys = peerDID.algo2AuthenticationKeys
         let agreementKeys = peerDID.algo2KeyAgreementKeys
-        let service = peerDID.algo2Service
+        let services = peerDID.algo2Service
         
         var keyIdCount = 1
         let authenticationVerificationMethods = try authenticationKeys
@@ -40,12 +40,14 @@ extension PeerDIDHelper {
                 return method
             }
         
-        let documentService = try service.map {  try decodedPeerDIDService(did: peerDID.string, serviceString: $0) }
+        let documentServices = try services.enumerated().map {
+            try decodedPeerDIDService(did: peerDID.string, serviceString: $0.element, index: $0.offset)
+        }
         
         return DIDDocument(
             id: peerDID.string,
             verificationMethods: authenticationVerificationMethods + agreementVerificationMethods,
-            services: documentService ?? []
+            services: documentServices
         )
     }
 }
