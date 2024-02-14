@@ -60,6 +60,15 @@ public struct PeerDID {
         methodIdWithoutAlgo.components(separatedBy: ".")
     }
     
+    public var algo2Keys: [String] {
+        guard algo == ._2 else { return [] }
+        return allAttributes
+            .filter {
+                $0.hasPrefix(Algorithm.Algo2Prefix.authentication.rawValue) || $0.hasPrefix(Algorithm.Algo2Prefix.agreement.rawValue)
+            }
+            .map { String($0.dropFirst()) }
+    }
+    
     public var algo2AuthenticationKeys: [String] {
         guard algo == ._2 else { return [] }
         return allAttributes
