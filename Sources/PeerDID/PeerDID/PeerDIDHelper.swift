@@ -52,7 +52,7 @@ public struct PeerDIDHelper {
         case ._0:
             return try PeerDIDHelper().resolvePeerDIDAlgo0(peerDID: peerDID, format: format)
         case ._2:
-            return DIDDocument(id: "", verificationMethods: [], services: [])
+            return try PeerDIDHelper().resolvePeerDIDAlgo2(peerDID: peerDID, format: format)
         }
     }
 }
