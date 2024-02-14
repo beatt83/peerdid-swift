@@ -11,24 +11,11 @@ import Foundation
 extension PeerDIDHelper {
     
     public func resolvePeerDIDAlgo2(peerDID: PeerDID, format: VerificationMaterialFormat) throws -> DIDDocument {
-        let authenticationKeys = peerDID.algo2AuthenticationKeys
-        let agreementKeys = peerDID.algo2KeyAgreementKeys
+        let keys = peerDID.algo2Keys
         let services = peerDID.algo2Service
         
         var keyIdCount = 1
-        let authenticationVerificationMethods = try authenticationKeys
-            .map { try decodeMultibaseEcnumbasis(ecnumbasis: $0, format: format) }
-            .map {
-                let method = try DIDDocument.VerificationMethod(
-                    did: peerDID.string,
-                    id: "key-\(keyIdCount)",
-                    material: $0
-                )
-                keyIdCount+=1
-                return method
-            }
-        
-        let agreementVerificationMethods = try agreementKeys
+        let verificationMethods = try keys
             .map { try decodeMultibaseEcnumbasis(ecnumbasis: $0, format: format) }
             .map {
                 let method = try DIDDocument.VerificationMethod(
@@ -46,7 +33,7 @@ extension PeerDIDHelper {
         
         return DIDDocument(
             id: peerDID.string,
-            verificationMethods: authenticationVerificationMethods + agreementVerificationMethods,
+            verificationMethods: verificationMethods,
             services: documentServices
         )
     }
