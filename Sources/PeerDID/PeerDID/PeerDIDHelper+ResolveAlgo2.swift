@@ -27,6 +27,28 @@ extension PeerDIDHelper {
                 return method
             }
         
+        let keyAgreements = verificationMethods.filter {
+            guard let type = KnownVerificationMaterialType(rawValue: $0.type) else {
+                return false
+            }
+            
+            if case .agreement = type {
+                return true
+            }
+            return false
+        }.map(\.id)
+        
+        let authenticationAgreements = verificationMethods.filter {
+            guard let type = KnownVerificationMaterialType(rawValue: $0.type) else {
+                return false
+            }
+            
+            if case .agreement = type {
+                return true
+            }
+            return false
+        }.map(\.id)
+        
         let documentServices = try services.enumerated().map {
             try decodedPeerDIDService(did: peerDID.string, serviceString: $0.element, index: $0.offset)
         }
@@ -34,6 +56,8 @@ extension PeerDIDHelper {
         return DIDDocument(
             id: peerDID.string,
             verificationMethods: verificationMethods,
+            authentication: authenticationAgreements.map { .stringValue($0) },
+            keyAgreement: keyAgreements.map { .stringValue($0) },
             services: documentServices
         )
     }
