@@ -149,7 +149,7 @@ extension PeerDIDHelper {
             }
             self.s = .init(
                 uri: uri,
-                r: dic["routing_keys"] as? [String],
+                r: dic["routingKeys"] as? [String],
                 a: dic["accept"] as? [String]
             )
         }
@@ -159,7 +159,7 @@ extension PeerDIDHelper {
                 id: "\(did)#\(t.lowercased())-\(index+1)",
                 type: t,
                 serviceEndpoint: AnyCodable(
-                    dictionaryLiteral: ("uri", s.uri), ("accept", s.a ?? []), ("routing_keys", s.r ?? [])
+                    dictionaryLiteral: ("uri", s.uri), ("accept", s.a ?? []), ("routingKeys", s.r ?? [])
                 )
             )
         }
@@ -169,49 +169,74 @@ extension PeerDIDHelper {
         
         let t: String // Type
         let s: String // Service Endpoint
+        let recipientKeys: [String]? // Recipient keys
         let r: [String]? // Routing keys
         let a: [String]? // Accept
         
-        init(t: String, s: String, r: [String], a: [String]) {
+        init(t: String, s: String, recipientKeys: [String]?, r: [String]?, a: [String]?) {
             self.t = t
             self.s = s
+            self.recipientKeys = recipientKeys
             self.r = r
             self.a = a
         }
         
-        init(from: DIDDocument.Service) throws {
+        init(from: DIDDocument.Service, recipientKeys: [String]) throws {
             self.t = from.type
-            guard 
-                let uri = from.serviceEndpoint.value as? String
-            else {
-                throw PeerDIDError.invalidPeerDIDService
+            if recipientKeys.isEmpty {
+                self.recipientKeys = nil
+            } else {
+                self.recipientKeys = recipientKeys
             }
-            self.s = uri
-            self.r = []
-            self.a = []
+            if 
+                let uri = from.serviceEndpoint.value as? String
+            {
+                self.s = uri
+                self.r = []
+                self.a = []
+            } else {
+                guard
+                    let dic = from.serviceEndpoint.value as? [String: Any],
+                    let uri = dic["uri"] as? String
+                else {
+                    throw PeerDIDError.invalidPeerDIDService
+                }
+                self.s = uri
+                self.r = dic["routingKeys"] as? [String]
+                self.a = dic["accept"] as? [String]
+            }
         }
         
         func toDIDDocumentService(did: String, index: Int) throws -> DIDDocument.Service {
             var serviceEndpoint: [String: Any] = ["uri": s]
             a.map { serviceEndpoint["accept"] = $0 }
-            r.map { serviceEndpoint["routing_keys"] = $0 }
+            r.map { serviceEndpoint["routingKeys"] = $0 }
             
             return .init(
                 id: "\(did)#\(t.lowercased())-\(index+1)",
                 type: t,
-                serviceEndpoint: AnyCodable(dictionaryLiteral: ("uri", s), ("accept", a ?? []), ("routing_keys", r ?? []))
+                serviceEndpoint: AnyCodable(dictionaryLiteral: ("uri", s), ("accept", a ?? []), ("routingKeys", r ?? []))
             )
         }
     }
     
-    public func encodePeerDIDServices(service: DIDDocument.Service) throws -> String {
+    public func encodePeerDIDServices(service: DIDDocument.Service, recipientKeys: [String]? = nil) throws -> String {
         let encoder = JSONEncoder.peerDIDEncoder()
         
-        let peerDIDService = try PeerDIDService(from: service)
-        guard let jsonStr = String(data: try encoder.encode(peerDIDService), encoding: .utf8) else {
-            throw PeerDIDError.somethingWentWrong
+        var parsingStr: String!
+        if recipientKeys == nil {
+            let peerDIDService = try PeerDIDService(from: service)
+            guard let jsonStr = String(data: try encoder.encode(peerDIDService), encoding: .utf8) else {
+                throw PeerDIDError.somethingWentWrong
+            }
+            parsingStr = jsonStr
+        } else {
+            let peerDIDService = try PeerDIDServiceLegacy(from: service, recipientKeys: recipientKeys!)
+            guard let jsonStr = String(data: try encoder.encode(peerDIDService), encoding: .utf8) else {
+                throw PeerDIDError.somethingWentWrong
+            }
+            parsingStr = jsonStr
         }
-        let parsingStr = jsonStr
         
         let parsedService = parsingStr
             .replacingOccurrences(of: "[\n\t\\s]*", with: "", options: .regularExpression)

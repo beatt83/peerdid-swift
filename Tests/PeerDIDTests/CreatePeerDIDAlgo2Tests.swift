@@ -68,7 +68,7 @@ final class CreatePeerDIDAlgo2Tests: XCTestCase {
         id: "test",
         type: "DIDCommMessaging",
         serviceEndpoint: AnyCodable(
-            dictionaryLiteral: ("uri","https://example.com/endpoint"), ("routing_keys", ["did:example:somemediator#somekey"]))
+            dictionaryLiteral: ("uri","https://example.com/endpoint"), ("routingKeys", ["did:example:somemediator#somekey"]))
     )
     
     func testCreatePeerDIDAlgo2Base58() throws {
