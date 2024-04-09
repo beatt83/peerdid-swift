@@ -32,14 +32,29 @@ final class EncodeEcnumbasisTests: XCTestCase {
                 dictionaryLiteral: ("uri","https://example.com/endpoint"), ("routingKeys", ["did:example:somemediator#somekey"]), ("accept", ["didcomm/v2", "didcomm/aip2;env=rfc587"]))
         )
         
-        let expect = "SeyJ0IjoiZG0iLCJzIjoiaHR0cHM6Ly9leGFtcGxlLmNvbS9lbmRwb2ludCIsInIiOlsiZGlkOmV4YW1wbGU6c29tZW1lZGlhdG9yI3NvbWVrZXkiXSwiYSI6WyJkaWRjb21tL3YyIiwiZGlkY29tbS9haXAyO2Vudj1yZmM1ODciXX0"
+        let expect = "SeyJhIjpbImRpZGNvbW0vdjIiLCJkaWRjb21tL2FpcDI7ZW52PXJmYzU4NyJdLCJyIjpbImRpZDpleGFtcGxlOnNvbWVtZWRpYXRvciNzb21la2V5Il0sInMiOiJodHRwczovL2V4YW1wbGUuY29tL2VuZHBvaW50IiwidCI6ImRtIn0"
+        
+        XCTAssertEqual(expect, try PeerDIDHelper().encodePeerDIDServices(service: service, recipientKeys: []))
+    }
+
+    func testEncodeToLegacyServiceNoAccept() throws {
+        let service = DIDDocument.Service(
+            id: "test",
+            type: "DIDCommMessaging",
+            serviceEndpoint: AnyCodable(
+                dictionaryLiteral: ("uri","https://example.com/endpoint"), ("routingKeys", ["did:example:somemediator#somekey"]))
+            )
+        
+        let expect = "SeyJyIjpbImRpZDpleGFtcGxlOnNvbWVtZWRpYXRvciNzb21la2V5Il0sInMiOiJodHRwczovL2V4YW1wbGUuY29tL2VuZHBvaW50IiwidCI6ImRtIn0"
         
         XCTAssertEqual(expect, try PeerDIDHelper().encodePeerDIDServices(service: service, recipientKeys: []))
     }
 
     func testDecodeService() throws {
         let did = "did:test:abc"
-        let service = "eyJ0IjoiZG0iLCJzIjoiaHR0cHM6Ly9leGFtcGxlLmNvbS9lbmRwb2ludCIsInIiOlsiZGlkOmV4YW1wbGU6c29tZW1lZGlhdG9yI3NvbWVrZXkiXSwiYSI6WyJkaWRjb21tL3YyIiwiZGlkY29tbS9haXAyO2Vudj1yZmM1ODciXX0"
+        let legacyService = "eyJ0IjoiZG0iLCJzIjoiaHR0cHM6Ly9leGFtcGxlLmNvbS9lbmRwb2ludCIsInIiOlsiZGlkOmV4YW1wbGU6c29tZW1lZGlhdG9yI3NvbWVrZXkiXSwiYSI6WyJkaWRjb21tL3YyIiwiZGlkY29tbS9haXAyO2Vudj1yZmM1ODciXX0"
+        let legacyServiceSorted = "eyJhIjpbImRpZGNvbW0vdjIiLCJkaWRjb21tL2FpcDI7ZW52PXJmYzU4NyJdLCJyIjpbImRpZDpleGFtcGxlOnNvbWVtZWRpYXRvciNzb21la2V5Il0sInMiOiJodHRwczovL2V4YW1wbGUuY29tL2VuZHBvaW50IiwidCI6ImRtIn0"
+        let service = "eyJzIjp7ImEiOlsiZGlkY29tbS92MiIsImRpZGNvbW0vYWlwMjtlbnY9cmZjNTg3Il0sInIiOlsiZGlkOmV4YW1wbGU6c29tZW1lZGlhdG9yI3NvbWVrZXkiXSwidXJpIjoiaHR0cHM6Ly9leGFtcGxlLmNvbS9lbmRwb2ludCJ9LCJ0IjoiZG0ifQ"
         
         let expected = DIDDocument.Service(
             id: "did:test:abc#didcommmessaging-1",
@@ -49,6 +64,8 @@ final class EncodeEcnumbasisTests: XCTestCase {
         )
         
         XCTAssertEqual(expected, try PeerDIDHelper().decodedPeerDIDService(did: did, serviceString: service, index: 0))
+        XCTAssertEqual(expected, try PeerDIDHelper().decodedPeerDIDService(did: did, serviceString: legacyService, index: 0))
+        XCTAssertEqual(expected, try PeerDIDHelper().decodedPeerDIDService(did: did, serviceString: legacyServiceSorted, index: 0))
     }
 }
 

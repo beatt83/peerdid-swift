@@ -86,6 +86,22 @@ final class CreatePeerDIDAlgo2Tests: XCTestCase {
         XCTAssertTrue(peerDID.algo2Service.contains("eyJzIjp7InIiOlsiZGlkOmV4YW1wbGU6c29tZW1lZGlhdG9yI3NvbWVrZXkiXSwidXJpIjoiaHR0cHM6Ly9leGFtcGxlLmNvbS9lbmRwb2ludCJ9LCJ0IjoiZG0ifQ"))
     }
     
+    func testCreatePeerDIDAlgo2Legacy() throws {
+        let peerDID = try PeerDIDHelper.createAlgo2(
+            authenticationKeys: [valid_ed25519_key1_base58, valid_ed25519_key2_base58],
+            agreementKeys: [valid_x25519_key_base58],
+            services: [validService],
+            recipientKeys: [[]]
+        )
+        
+        XCTAssertEqual("did:peer:2.Ez6LSbysY2xFMRpGMhb7tFTLMpeuPRaqaWM1yECx2AtzE3KCc.Vz6MkqRYqQiSgvZQdnBytw86Qbs2ZWUkGv22od935YF4s8M7V.Vz6MkgoLTnTypo3tDRwCkZXSccTPHRLhF4ZnjhueYAFpEX6vg.SeyJyIjpbImRpZDpleGFtcGxlOnNvbWVtZWRpYXRvciNzb21la2V5Il0sInMiOiJodHRwczovL2V4YW1wbGUuY29tL2VuZHBvaW50IiwidCI6ImRtIn0", peerDID.string)
+        
+        XCTAssertTrue(peerDID.algo2KeyAgreementKeys.contains("z6LSbysY2xFMRpGMhb7tFTLMpeuPRaqaWM1yECx2AtzE3KCc"))
+        XCTAssertTrue(peerDID.algo2AuthenticationKeys.contains("z6MkqRYqQiSgvZQdnBytw86Qbs2ZWUkGv22od935YF4s8M7V"))
+        XCTAssertTrue(peerDID.algo2AuthenticationKeys.contains("z6MkgoLTnTypo3tDRwCkZXSccTPHRLhF4ZnjhueYAFpEX6vg"))
+        XCTAssertTrue(peerDID.algo2Service.contains("eyJyIjpbImRpZDpleGFtcGxlOnNvbWVtZWRpYXRvciNzb21la2V5Il0sInMiOiJodHRwczovL2V4YW1wbGUuY29tL2VuZHBvaW50IiwidCI6ImRtIn0"))
+    }
+
     func testCreatePeerDIDAlgo2Multibase() throws {
         let peerDID = try PeerDIDHelper.createAlgo2(
             authenticationKeys: [valid_ed25519_key1_multibase, valid_ed25519_key2_multibase],

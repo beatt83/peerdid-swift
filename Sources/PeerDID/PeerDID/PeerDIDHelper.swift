@@ -19,12 +19,16 @@ public struct PeerDIDHelper {
             methodId: "0\(keyEcnumbasis)"
         )
     }
-    
+
     public static func createAlgo2(
         authenticationKeys: [PeerDIDVerificationMaterial],
         agreementKeys: [PeerDIDVerificationMaterial],
-        services: [DIDDocument.Service]
+        services: [DIDDocument.Service],
+        recipientKeys: [[String]]? = nil
     ) throws -> PeerDID {
+        if recipientKeys != nil && recipientKeys!.count != services.count {
+            throw PeerDIDError.invalidPeerDIDService
+        }
         
         let encodedAgreementsStrings = try agreementKeys
             .map { try PeerDIDHelper().createMultibaseEncnumbasis(material: $0) }
@@ -34,7 +38,9 @@ public struct PeerDIDHelper {
             .map { try PeerDIDHelper().createMultibaseEncnumbasis(material: $0) }
             .map { "V\($0)" }
         
-        let encodedServiceStrs = try services.map { try PeerDIDHelper().encodePeerDIDServices(service: $0) }
+        let encodedServiceStrs = try services.enumerated().map { index, service in
+            try PeerDIDHelper().encodePeerDIDServices(service: service, recipientKeys: recipientKeys?[index])
+        }
         let methodId = (["2"] + encodedAgreementsStrings + encodedAuthenticationsStrings + encodedServiceStrs)
             .compactMap { $0 }
             .joined(separator: ".")
@@ -44,7 +50,7 @@ public struct PeerDIDHelper {
             methodId: methodId
         )
     }
-    
+
     public static func resolve(peerDIDStr: String, format: VerificationMaterialFormat = .multibase) throws -> DIDDocument {
         guard !peerDIDStr.isEmpty else { throw PeerDIDError.invalidPeerDIDString }
         let peerDID = try PeerDID(didString: peerDIDStr)
