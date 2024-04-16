@@ -64,14 +64,18 @@ final class CreatePeerDIDAlgo2Tests: XCTestCase {
         type: .agreement(.jsonWebKey2020)
     )
     
-    let validService = DIDDocument.Service(
-        id: "test",
-        type: "DIDCommMessaging",
-        serviceEndpoint: AnyCodable(
-            dictionaryLiteral: ("uri","https://example.com/endpoint"), ("routing_keys", ["did:example:somemediator#somekey"]))
-    )
+    let validServiceDic = [
+        "id": "test",
+        "type": "DIDCommMessaging",
+        "serviceEndpoint": [
+            "uri": "https://example.com/endpoint",
+            "routingKeys": ["did:example:somemediator#somekey"]
+        ]
+    ] as [String : Any]
     
     func testCreatePeerDIDAlgo2Base58() throws {
+        let validService = AnyCodable(validServiceDic)
+        
         let peerDID = try PeerDIDHelper.createAlgo2(
             authenticationKeys: [valid_ed25519_key1_base58, valid_ed25519_key2_base58],
             agreementKeys: [valid_x25519_key_base58],
@@ -87,6 +91,8 @@ final class CreatePeerDIDAlgo2Tests: XCTestCase {
     }
     
     func testCreatePeerDIDAlgo2Multibase() throws {
+        let validService = AnyCodable(validServiceDic)
+        
         let peerDID = try PeerDIDHelper.createAlgo2(
             authenticationKeys: [valid_ed25519_key1_multibase, valid_ed25519_key2_multibase],
             agreementKeys: [valid_x25519_key_multibase],
@@ -102,6 +108,8 @@ final class CreatePeerDIDAlgo2Tests: XCTestCase {
     }
     
     func testCreatePeerDIDAlgo2JWK() throws {
+        let validService = AnyCodable(validServiceDic)
+        
         let peerDID = try PeerDIDHelper.createAlgo2(
             authenticationKeys: [valid_ed25519_key1_jwk, valid_ed25519_key2_jwk],
             agreementKeys: [valid_x25519_key_jwk],
@@ -117,6 +125,8 @@ final class CreatePeerDIDAlgo2Tests: XCTestCase {
     }
     
     func testCreatePeerDIDAlgo2MultipleServices() throws {
+        let validService = AnyCodable(validServiceDic)
+        
         let peerDID = try PeerDIDHelper.createAlgo2(
             authenticationKeys: [valid_ed25519_key1_jwk],
             agreementKeys: [valid_x25519_key_jwk],
