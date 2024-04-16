@@ -23,7 +23,7 @@ public struct PeerDIDHelper {
     public static func createAlgo2(
         authenticationKeys: [PeerDIDVerificationMaterial],
         agreementKeys: [PeerDIDVerificationMaterial],
-        services: [DIDDocument.Service]
+        services: [AnyCodable]
     ) throws -> PeerDID {
         
         let encodedAgreementsStrings = try agreementKeys
@@ -128,86 +128,58 @@ public extension PeerDIDHelper {
 
 extension PeerDIDHelper {
     
-    struct PeerDIDService: Codable {
-        
-        struct ServiceEndpoint: Codable {
-            let uri: String
-            let r: [String]? // Routing keys
-            let a: [String]? // Accept
+    func parseServiceToPeerDID(_ service: AnyCodable) throws -> AnyCodable {
+        guard var value = service.value as? [String: Any] else {
+            throw PeerDIDError.invalidPeerDIDService
         }
         
-        let t: String // Type
-        let s: ServiceEndpoint // Service Endpoint
-        
-        init(from: DIDDocument.Service) throws {
-            self.t = from.type
-            guard
-                let dic = from.serviceEndpoint.value as? [String: Any],
-                let uri = dic["uri"] as? String
-            else {
-                throw PeerDIDError.invalidPeerDIDService
-            }
-            self.s = .init(
-                uri: uri,
-                r: dic["routing_keys"] as? [String],
-                a: dic["accept"] as? [String]
-            )
+        if var serviceEndpoint = value["serviceEndpoint"] as? [String: Any] {
+            replaceServiceDictionaryKey(dic: &serviceEndpoint, from: "accept", to: "a")
+            replaceServiceDictionaryKey(dic: &serviceEndpoint, from: "routingKeys", to: "r")
+            value["serviceEndpoint"] = serviceEndpoint
         }
         
-        func toDIDDocumentService(did: String, index: Int) throws -> DIDDocument.Service {
-            return .init(
-                id: "\(did)#\(t.lowercased())-\(index+1)",
-                type: t,
-                serviceEndpoint: AnyCodable(
-                    dictionaryLiteral: ("uri", s.uri), ("accept", s.a ?? []), ("routing_keys", s.r ?? [])
-                )
-            )
+        replaceServiceDictionaryKey(dic: &value, from: "type", to: "t")
+        replaceServiceDictionaryKey(dic: &value, from: "serviceEndpoint", to: "s")
+        replaceServiceDictionaryKey(dic: &value, from: "accept", to: "a")
+        replaceServiceDictionaryKey(dic: &value, from: "routingKeys", to: "r")
+        
+        value.removeValue(forKey: "id")
+        
+        return AnyCodable(value)
+    }
+    
+    func parsePeerDIDServiceToService(_ service: AnyCodable, did: String, index: Int) throws -> AnyCodable {
+        guard var value = service.value as? [String: Any], let type = value["t"] as? String else {
+            throw PeerDIDError.invalidPeerDIDService
+        }
+        
+        replaceServiceDictionaryKey(dic: &value, from: "t", to: "type")
+        replaceServiceDictionaryKey(dic: &value, from: "s", to: "serviceEndpoint")
+        replaceServiceDictionaryKey(dic: &value, from: "a", to: "accept")
+        replaceServiceDictionaryKey(dic: &value, from: "r", to: "routingKeys")
+        
+        if var serviceEndpoint = value["serviceEndpoint"] as? [String: Any] {
+            replaceServiceDictionaryKey(dic: &serviceEndpoint, from: "a", to: "accept")
+            replaceServiceDictionaryKey(dic: &serviceEndpoint, from: "r", to: "routingKeys")
+            value["serviceEndpoint"] = serviceEndpoint
+        }
+        
+        value["id"] = "\(did)#\(type.lowercased())-\(index+1)"
+        return AnyCodable(value)
+    }
+    
+    private func replaceServiceDictionaryKey(dic: inout [String: Any], from: String, to: String) {
+        if let value = dic[from] {
+            dic[to] = value
+            dic.removeValue(forKey: from)
         }
     }
     
-    struct PeerDIDServiceLegacy: Codable {
-        
-        let t: String // Type
-        let s: String // Service Endpoint
-        let r: [String]? // Routing keys
-        let a: [String]? // Accept
-        
-        init(t: String, s: String, r: [String], a: [String]) {
-            self.t = t
-            self.s = s
-            self.r = r
-            self.a = a
-        }
-        
-        init(from: DIDDocument.Service) throws {
-            self.t = from.type
-            guard 
-                let uri = from.serviceEndpoint.value as? String
-            else {
-                throw PeerDIDError.invalidPeerDIDService
-            }
-            self.s = uri
-            self.r = []
-            self.a = []
-        }
-        
-        func toDIDDocumentService(did: String, index: Int) throws -> DIDDocument.Service {
-            var serviceEndpoint: [String: Any] = ["uri": s]
-            a.map { serviceEndpoint["accept"] = $0 }
-            r.map { serviceEndpoint["routing_keys"] = $0 }
-            
-            return .init(
-                id: "\(did)#\(t.lowercased())-\(index+1)",
-                type: t,
-                serviceEndpoint: AnyCodable(dictionaryLiteral: ("uri", s), ("accept", a ?? []), ("routing_keys", r ?? []))
-            )
-        }
-    }
-    
-    public func encodePeerDIDServices(service: DIDDocument.Service) throws -> String {
+    public func encodePeerDIDServices(service: AnyCodable) throws -> String {
         let encoder = JSONEncoder.peerDIDEncoder()
         
-        let peerDIDService = try PeerDIDService(from: service)
+        let peerDIDService = try parseServiceToPeerDID(service)
         guard let jsonStr = String(data: try encoder.encode(peerDIDService), encoding: .utf8) else {
             throw PeerDIDError.somethingWentWrong
         }
@@ -224,7 +196,7 @@ extension PeerDIDHelper {
         return "S\(encodedService)"
     }
     
-    public func decodedPeerDIDService(did: String, serviceString: String, index: Int) throws -> DIDDocument.Service {
+    public func decodedPeerDIDService(did: String, serviceString: String, index: Int) throws -> AnyCodable {
         guard
             let serviceBase64Data = Data(base64URLEncoded: serviceString),
             let serviceStr = String(data: serviceBase64Data, encoding: .utf8)
@@ -238,21 +210,8 @@ extension PeerDIDHelper {
         else {
             throw PeerDIDError.invalidPeerDIDService
         }
-        let decoder = JSONDecoder()
-        if
-            let service = try? decoder.decode(
-                PeerDIDServiceLegacy.self,
-                from: peerDIDServiceData
-            )
-        {
-            return try service.toDIDDocumentService(did: did, index: index)
-        } else {
-            let service = try decoder.decode(
-                PeerDIDService.self,
-                from: peerDIDServiceData
-            )
-            return try service.toDIDDocumentService(did: did, index: index)
-        }
+        let serviceObject = try JSONDecoder().decode(AnyCodable.self, from: peerDIDServiceData)
+        return try parsePeerDIDServiceToService(serviceObject, did: did, index: index)
     }
 }
 
@@ -273,12 +232,5 @@ extension DIDDocument.VerificationMethod {
             type: material.type.rawValue,
             material: .init(format: material.format, value: material.value)
         )
-    }
-}
-extension DIDDocument.Service {
-    
-    func getJsonString() throws -> String? {
-        let encoder = JSONEncoder.peerDIDEncoder()
-        return String(data: try encoder.encode(self), encoding: .utf8)
     }
 }

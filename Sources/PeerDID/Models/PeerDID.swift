@@ -6,6 +6,7 @@
 //
 
 import Foundation
+import DIDCore
 
 public struct PeerDID {
     
@@ -46,6 +47,10 @@ public struct PeerDID {
             throw PeerDIDError.unsupportedPeerDIDAlgo(String(methodId.prefix(1)))
         }
         self.algo = algo
+    }
+    
+    public var did: DID {
+        DID(schema: schema, method: method, methodId: methodId)
     }
     
     public var string: String {
