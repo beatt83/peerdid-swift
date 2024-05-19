@@ -43,7 +43,7 @@ extension PeerDIDHelper {
                 return false
             }
             
-            if case .agreement = type {
+            if case .authentication = type {
                 return true
             }
             return false

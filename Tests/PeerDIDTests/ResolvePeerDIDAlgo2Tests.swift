@@ -76,6 +76,8 @@ final class ReselvePeerDIDAlgo2Tests: XCTestCase {
         XCTAssertTrue(encodedDocument.contains("\"id\":\"\(validDid)#key-3\""))
         XCTAssertTrue(encodedDocument.contains("\"type\":\"Ed25519VerificationKey2020\""))
         XCTAssertTrue(encodedDocument.contains("\"type\":\"X25519KeyAgreementKey2020\""))
+        XCTAssertEqual(document.authentication?.count, 2)
+        XCTAssertEqual(document.keyAgreement?.count, 1)
     }
     
     func testResolvePeerDIDAlgo2MultipleServices() throws {
