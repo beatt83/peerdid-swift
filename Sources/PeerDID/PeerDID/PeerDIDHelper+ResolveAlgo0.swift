@@ -15,7 +15,7 @@ extension PeerDIDHelper {
         let decoded = try PeerDIDHelper().decodeMultibaseEcnumbasis(ecnumbasis: keyStr, format: format)
         return DIDDocument(
             id: peerDID.string,
-            verificationMethods: [
+            verificationMethod: [
                 try .init(
                     did: peerDID.string,
                     id: keyStr,
