@@ -55,7 +55,7 @@ extension PeerDIDHelper {
         
         return DIDDocument(
             id: peerDID.string,
-            verificationMethods: verificationMethods,
+            verificationMethod: verificationMethods,
             authentication: authenticationAgreements.map { .stringValue($0) },
             keyAgreement: keyAgreements.map { .stringValue($0) },
             services: documentServices
